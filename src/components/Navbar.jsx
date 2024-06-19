@@ -1,9 +1,26 @@
-import React from 'react'
-import { NavLink } from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
+import { NavLink, useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
+import { getAuth, onAuthStateChanged } from 'firebase/auth'
 
 const Navbar = () => {
     const state = useSelector(state => state.handleCart)
+    const navigate = useNavigate()
+    const [isLoggedIn, setIsLoggedIn] = useState()
+
+  useEffect(() => {
+    const getCurrentAuthenticatedUser = async () => {
+      const authentication = getAuth()
+      const currentAppUser = authentication.currentUser
+      onAuthStateChanged(authentication, (user) => {
+        console.log(user)
+        if (user !== null) {
+          setIsLoggedIn(true);
+        }
+      })
+    }
+    getCurrentAuthenticatedUser()
+  }, [])
     return (
         <nav className="navbar navbar-expand-lg navbar-light bg-light py-3 sticky-top">
             <div className="container">
@@ -28,8 +45,9 @@ const Navbar = () => {
                         </li>
                     </ul>
                     <div className="buttons text-center">
+                        {isLoggedIn ? <NavLink to="/dashboard" className="btn btn-outline-dark m-2"><i className="fa fa-user-alt mr-1"></i> Account</NavLink> : <> 
                         <NavLink to="/login" className="btn btn-outline-dark m-2"><i className="fa fa-sign-in-alt mr-1"></i> Login</NavLink>
-                        <NavLink to="/register" className="btn btn-outline-dark m-2"><i className="fa fa-user-plus mr-1"></i> Register</NavLink>
+                        <NavLink to="/register" className="btn btn-outline-dark m-2"><i className="fa fa-user-plus mr-1"></i> Register</NavLink></>}
                         <NavLink to="/cart" className="btn btn-outline-dark m-2"><i className="fa fa-cart-shopping mr-1"></i> Cart ({state.length}) </NavLink>
                     </div>
                 </div>
